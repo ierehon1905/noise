@@ -1,0 +1,53 @@
+.card.graph {
+  flex-grow: 2;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1em;
+}
+
+.card.graph:last-of-type {
+  margin-bottom: 0;
+}
+
+main {
+  display: flex;
+}
+
+.graphs {
+  flex-grow: 2;
+  display: flex;
+  flex-direction: column;
+  margin-right: 1em;
+}
+
+.canvas-wrapper {
+  position: relative;
+  flex-grow: 2;
+}
+
+canvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 4px;
+}
+
+.s,
+body,
+#root {
+  display: grid;
+  place-items: stretch;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.state {
+  flex-grow: 2;
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+}

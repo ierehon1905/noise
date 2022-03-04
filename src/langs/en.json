@@ -1,0 +1,23 @@
+{
+  "bitrate": "Bitrate",
+  "encoded": "Code",
+  "enter-message": "Enter message",
+  "fourier-series": "Fourier Series",
+  "highest": "Highest",
+  "length": "Length",
+  "lowest": "Lowest",
+  "message": "Message",
+  "noise": "Noise",
+  "received-signal": "Received Signal",
+  "receiver": "Receiver",
+  "samplers": "Samplers",
+  "sender": "Sender",
+  "signal": "Signal",
+  "spectrum-harmonics": "Spectrum harmonics",
+  "state": "State",
+  "voltage": "Voltage",
+  "recovered-message": "Recovered message",
+  "bits-count": "Bits count",
+  "error-count": "Error count",
+  "error-ratio": "Error %"
+}

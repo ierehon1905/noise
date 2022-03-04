@@ -1,0 +1,23 @@
+{
+  "bitrate": "Битрейт",
+  "encoded": "Код",
+  "enter-message": "Введите сообщение",
+  "fourier-series": "Ряд Фурье",
+  "highest": "Верхняя",
+  "length": "Длина",
+  "lowest": "Нижняя",
+  "message": "Сообщение",
+  "noise": "Шум",
+  "received-signal": "Полученный сигнал",
+  "receiver": "Приемник",
+  "samplers": "Отсчеты",
+  "sender": "Передатчик",
+  "signal": "Сигнал",
+  "spectrum-harmonics": "гармонический спектр",
+  "state": "Состояние",
+  "voltage": "Напряжение",
+  "recovered-message": "Восстановленное сообщение",
+  "bits-count": "Кол-во бит",
+  "error-count": "Кол-во ошибок",
+  "error-ratio": "% ошибок"
+}
