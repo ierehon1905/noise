@@ -9,6 +9,10 @@
   margin-bottom: 0;
 }
 
+.card.graph.state-section {
+  flex-grow: 0;
+}
+
 main {
   display: flex;
 }
@@ -50,4 +54,11 @@ h2 {
   display: grid;
 
   grid-template-columns: repeat(3, 1fr);
+  align-items: flex-start;
+}
+
+.text-rows {
+  display: grid;
+  grid-auto-flow: row;
+  gap: 0.3em;
 }
