@@ -2,7 +2,7 @@ import { AppState } from "../state";
 import { getASCII } from "../utils";
 import { BaseSketch, StateDependent } from "./Base";
 
-export default class SignalNRZ extends BaseSketch implements StateDependent {
+export default class Signal extends BaseSketch implements StateDependent {
   draw() {
     const p = this.parentP5;
     const padding = this.padding;
@@ -27,9 +27,7 @@ export default class SignalNRZ extends BaseSketch implements StateDependent {
   }
 
   update(state: AppState): void {
-    this.vals = getASCII(state.message, 2)
-      .split("")
-      .map(Number)
-      .map((num) => (num === 0 ? -1 : num));
+    super.update(state);
+    this.vals = state.encodedMessage;
   }
 }

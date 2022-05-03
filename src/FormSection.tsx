@@ -52,7 +52,6 @@ export const FormSection: React.FC = () => {
             }
           />
         </div>
-        <input type="range" id="1488" min={1} max={1000} />
 
         <div>
           {["NRZ", "RZ", "AMI", "Manchester"].map((encoding) => (
@@ -78,6 +77,21 @@ export const FormSection: React.FC = () => {
       </div>
       <div className="card">
         <h2>{t("receiver")}</h2>
+        <div>
+          <label htmlFor="noise">{t("noise")} </label>
+          <input
+            type="range"
+            name="noise"
+            min={0}
+            max={1}
+            step={0.01}
+            id="noise"
+            value={state.noise}
+            onChange={(e) =>
+              dispatch({ type: "set", key: "noise", payload: getVal(e) })
+            }
+          />
+        </div>
       </div>
     </section>
   );

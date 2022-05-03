@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAppState } from "./state";
 import { getASCII } from "./utils";
-import SignalNRZ from "./graphs/SignalNRZ";
+import Signal from "./graphs/Signal";
 import { BaseSketch } from "./graphs/Base";
 import { Fourier } from "./graphs/Fourier";
 
@@ -10,9 +10,9 @@ const colors = ["red", "green", "blue"];
 type ChartType = "signal" | "fourier" | "received";
 
 const chartTypeMap: Record<ChartType, typeof BaseSketch> = {
-  signal: SignalNRZ,
+  signal: Signal,
   fourier: Fourier,
-  received: SignalNRZ,
+  received: Signal,
 };
 
 export const Chart: React.FC<{ title: string; chartType: ChartType }> = ({

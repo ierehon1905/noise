@@ -1,18 +1,13 @@
-import { BaseSketch, StateDependent } from "../Base";
-
-import * as fft from "fft-js";
 import * as jsfft from "jsfft";
-import { AppState } from "../../state";
+import type { AppState } from "../../state";
 import { getASCII } from "../../utils";
-import { calcFourierCoeff } from "./utils";
-
-console.log({ fft, jsfft });
+import { BaseSketch, StateDependent } from "../Base";
 
 export class Fourier extends BaseSketch implements StateDependent {
   draw() {
+    this.prepDraw();
     const p = this.parentP5;
     const padding = this.padding;
-    this.prepDraw();
 
     const vals = this.vals;
     const tileWidth = (p.width - padding * 2) / vals.length;
@@ -22,7 +17,11 @@ export class Fourier extends BaseSketch implements StateDependent {
 
     for (let i = 0; i < vals.length; i++) {
       const x = i * tileWidth;
-      const y = vals[i] * height;
+
+      let y = vals[i];
+      // console.log(y);
+      y *= height;
+
       p.vertex(x, y);
     }
 
@@ -30,6 +29,11 @@ export class Fourier extends BaseSketch implements StateDependent {
   }
 
   update(state: AppState): void {
+    super.update(state);
+
+    this.noise = state.noise;
+    let now = Date.now();
+
     if (!state.message) {
       return;
     }
@@ -37,17 +41,10 @@ export class Fourier extends BaseSketch implements StateDependent {
     const highest = state.highest || 128;
     const lowest = state.lowest || 0;
 
-    let rawVals = getASCII(state.message, 2);
+    const vals = state.encodedMessage;
 
-    const vals = rawVals
-      .split("")
-      .map(Number)
-      .map((num) => (num === 0 ? -1 : num));
-
-    ///////////////////////////
-
-    let data = new jsfft.ComplexArray(highest).map((value, i, n) => {
-      value.real = vals[Math.trunc((i / highest) * vals.length)];
+    let data = new jsfft.ComplexArray(width).map((value, i, n) => {
+      value.real = vals[Math.trunc((i / n) * vals.length)];
     });
 
     data.FFT();
@@ -58,49 +55,35 @@ export class Fourier extends BaseSketch implements StateDependent {
       }
     });
 
-    // data.InvFFT();
-    // console.log([...data.real.slice(0, 10)]);
-
     const inputT = Array(width)
       .fill(0)
-      .map((v, i) => i);
-    const inputX = inputT.map(
-      (t) => vals[Math.trunc((t / inputT.length) * vals.length)]
-    );
+      .map((v, i, arr) => (i / arr.length) * highest);
 
-    const nCoeff = highest;
-    let coeff = calcFourierCoeff(inputT, inputX, nCoeff);
-    console.log({ groundFreq: coeff.groundFreq, nCoeff });
-    const groundFreq = (2 * Math.PI) / inputT.length;
+    const groundFreq = (2 * Math.PI) / highest;
 
     let outputVerts = [];
-    const delenia = (document.getElementById("1488") as HTMLInputElement)
-      .valueAsNumber;
-    for (let i = 0; i < inputT.length; i++) {
-      let t = inputT[i];
-      // let x = coeff.average;
-      let x = 0;
 
-      data.map((frequency, j, n) => {
-        // x += frequency.real * Math.cos((1 / n ** 2) * j * t);
-        // x += frequency.imag * Math.sin((1 / n ** 2) * j * t);
-        if (j !== 0) {
-          x += frequency.real * Math.cos(groundFreq * j * t);
-          x += frequency.imag * Math.sin(groundFreq * j * t);
-        }
-      });
-
-      // for (let n = 0 /* lowest */; n < nCoeff - 1; n++) {
-      //   x += coeff.coeff[n].cos * Math.cos(coeff.coeff[n].freq * t);
-      //   x += coeff.coeff[n].sin * Math.sin(coeff.coeff[n].freq * t);
-      // }
-      outputVerts.push([t, x]);
+    for (let index = lowest; index < highest; index++) {
+      data.real[index] += (Math.random() - 0.5) * this.noise;
+      data.imag[index] += (Math.random() - 0.5) * this.noise;
     }
 
-    const cleanOut = outputVerts.map(([t, x]) => x);
-    // const cleanOut = [...data.real];
+    for (let i = 0; i < inputT.length; i++) {
+      let t = inputT[i];
+      let x = 0;
 
-    this.vals = cleanOut;
-    this.counts = rawVals.length;
+      for (let index = lowest; index < highest; index++) {
+        const real = data.real[index];
+        const imag = data.imag[index];
+
+        x += real * Math.cos(groundFreq * index * t);
+        x += imag * Math.sin(groundFreq * index * t);
+      }
+
+      outputVerts.push((x / Math.sqrt(width)) * 2);
+    }
+
+    this.vals = outputVerts;
+    console.log("MILLIS", Date.now() - now);
   }
 }

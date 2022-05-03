@@ -22,13 +22,11 @@ declare module "jsfft" {
 
     conjugate(): unknown;
 
-    forEach(iterator: unknown): unknown;
+    forEach(iterator: Filterer): unknown;
 
     magnitude(): Float32Array;
 
-    map(
-      mapper: (frequency: Frequency, i: number, n: number) => void
-    ): ComplexArray;
+    map(mapper: Filterer): ComplexArray;
 
     toString(): string;
   }

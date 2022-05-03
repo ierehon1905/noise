@@ -69,7 +69,16 @@ export class BaseSketch implements StateDependent {
   }
 
   update(state: AppState) {
-    throw new Error("Can not call update on base graph class");
+    const values = state.encodedMessage;
+    switch (state.encoding) {
+      case "RZ":
+      case "Manchester":
+        this.counts = values.length / 2;
+        break;
+      default:
+        this.counts = values.length;
+        break;
+    }
   }
 
   get padding() {
@@ -84,11 +93,12 @@ export class BaseSketch implements StateDependent {
     p.push();
     p.stroke(100);
     p.line(0, 0, p.width, 0);
+    p.strokeWeight(4);
 
     const tileWidth = (p.width - padding * 2) / count;
     for (let index = 0; index < count; index++) {
       const x = index * tileWidth;
-      const halfHeight = x % 8 === 0 ? p.height / 4 : p.height / 8;
+      const halfHeight = x % 8 === 0 ? p.height / 4 : p.height / 16;
 
       p.line(x, -halfHeight, x, halfHeight);
     }
