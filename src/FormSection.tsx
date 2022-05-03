@@ -78,14 +78,26 @@ export const FormSection: React.FC = () => {
       <div className="card">
         <h2>{t("receiver")}</h2>
         <div>
-          <label htmlFor="noise">{t("noise")} </label>
+          <label htmlFor="noise-range">{t("noise")} </label>
           <input
             type="range"
-            name="noise"
+            name="noise-range"
             min={0}
-            max={1}
-            step={0.01}
-            id="noise"
+            max={2}
+            step={0.1}
+            id="noise-range"
+            value={state.noise}
+            onChange={(e) =>
+              dispatch({ type: "set", key: "noise", payload: getVal(e) })
+            }
+          />
+          <input
+            type="number"
+            name="noise-number"
+            min={0}
+            max={2}
+            step={0.1}
+            id="noise-number"
             value={state.noise}
             onChange={(e) =>
               dispatch({ type: "set", key: "noise", payload: getVal(e) })

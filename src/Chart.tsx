@@ -43,6 +43,8 @@ export const Chart: React.FC<{ title: string; chartType: ChartType }> = ({
     if (!p5Instance) {
       return;
     }
+    console.log('updating chart', title);
+    
 
     p5Instance.update(state);
   }, [p5Instance, state]);

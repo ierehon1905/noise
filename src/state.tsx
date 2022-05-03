@@ -15,11 +15,11 @@ export type AppState = {
 };
 
 const initialState: AppState = {
-  message: "",
+  message: "leon",
   highest: 128,
   lowest: 0,
   encoding: "NRZ",
-  encodedMessage: [],
+  encodedMessage: getEncodedMessage("leon", "NRZ", "Physical"),
   scrambling: "Physical",
   noise: 0,
 };
