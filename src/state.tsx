@@ -1,4 +1,10 @@
-import React, { Dispatch, Reducer, useContext, useReducer } from "react";
+import React, {
+  Dispatch,
+  Reducer,
+  useContext,
+  useReducer,
+  useRef,
+} from "react";
 import { getASCII } from "./utils";
 
 type Encoding = "NRZ" | "RZ" | "AMI" | "Manchester";
@@ -12,6 +18,9 @@ export type AppState = {
   encodedMessage: number[];
   scrambling: Scrambling;
   noise: number;
+  noisedMessage?: React.MutableRefObject<number[]>;
+  receivedMessage?: number[];
+  decodedMessage?: number[];
 };
 
 const initialState: AppState = {
@@ -24,9 +33,13 @@ const initialState: AppState = {
   noise: 0,
 };
 
-type Actions = { type: "set"; key: keyof AppState; payload: string | number };
+type Actions<T extends keyof AppState = keyof AppState> = {
+  type: "set";
+  key: T;
+  payload: AppState[T];
+};
 
-type AppContextType = { state: AppState; dispatch: Dispatch<Actions> };
+export type AppContextType = { state: AppState; dispatch: Dispatch<Actions> };
 const AppStateContext = React.createContext<AppContextType>({
   state: initialState,
   dispatch: () => {
@@ -58,6 +71,13 @@ const reducer: Reducer<AppState, Actions> = (state, action) => {
         };
       }
 
+      if (key === "receivedMessage") {
+        return {
+          ...state,
+          [key]: action.payload,
+        };
+      }
+
       return {
         ...state,
         [key]: action.payload,
@@ -71,8 +91,19 @@ const reducer: Reducer<AppState, Actions> = (state, action) => {
 
 export const AppStateProvider: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const noisedMessageRef = useRef<number[]>([]);
+  // const receivedMessageRef = useRef<number[]>([]);
 
-  return <AppStateContext.Provider {...props} value={{ state, dispatch }} />;
+  const stateValue = {
+    state: {
+      ...state,
+      noisedMessage: noisedMessageRef,
+      // receivedMessage: receivedMessageRef,
+    },
+    dispatch,
+  };
+
+  return <AppStateContext.Provider {...props} value={stateValue} />;
 };
 
 function getEncodedMessage(

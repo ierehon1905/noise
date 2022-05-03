@@ -1,5 +1,4 @@
-import { AppState } from "../state";
-import { getASCII } from "../utils";
+import type { AppContextType, AppState } from "../../state";
 import { BaseSketch, StateDependent } from "./Base";
 
 export default class Signal extends BaseSketch implements StateDependent {
@@ -26,8 +25,8 @@ export default class Signal extends BaseSketch implements StateDependent {
     p.endShape();
   }
 
-  update(state: AppState): void {
-    super.update(state);
+  update(state: AppState, dispatch: AppContextType["dispatch"]): void {
+    super.update(state, dispatch);
     this.vals = state.encodedMessage;
   }
 }

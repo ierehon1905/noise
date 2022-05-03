@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useAppState } from "./state";
-import { getASCII } from "./utils";
+import { useAppState } from "../state";
+import { getASCII } from "../utils";
 import Signal from "./graphs/Signal";
 import { BaseSketch } from "./graphs/Base";
 import { Fourier } from "./graphs/Fourier";
+import Received from "./graphs/Received";
 
 const colors = ["red", "green", "blue"];
 
@@ -12,7 +13,7 @@ type ChartType = "signal" | "fourier" | "received";
 const chartTypeMap: Record<ChartType, typeof BaseSketch> = {
   signal: Signal,
   fourier: Fourier,
-  received: Signal,
+  received: Received,
 };
 
 export const Chart: React.FC<{ title: string; chartType: ChartType }> = ({
@@ -21,7 +22,7 @@ export const Chart: React.FC<{ title: string; chartType: ChartType }> = ({
 }) => {
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
   const [p5Instance, setP5Instance] = useState<BaseSketch>();
-  const { state } = useAppState();
+  const { state, dispatch } = useAppState();
 
   useEffect(() => {
     if (!canvasWrapperRef.current) {
@@ -44,7 +45,7 @@ export const Chart: React.FC<{ title: string; chartType: ChartType }> = ({
       return;
     }
 
-    p5Instance.update(state);
+    p5Instance.update(state, dispatch);
   }, [p5Instance, state]);
 
   return (

@@ -1,6 +1,6 @@
 import React from "react";
-import { useTranslation } from "./langs";
-import { useAppState } from "./state";
+import { useTranslation } from "../langs";
+import { useAppState } from "../state";
 
 export const FormSection: React.FC = () => {
   const { t } = useTranslation();

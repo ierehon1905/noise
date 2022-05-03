@@ -1,6 +1,5 @@
 import * as jsfft from "jsfft";
-import type { AppState } from "../../state";
-import { getASCII } from "../../utils";
+import type { AppContextType, AppState } from "../../../state";
 import { BaseSketch, StateDependent } from "../Base";
 
 export class Fourier extends BaseSketch implements StateDependent {
@@ -9,6 +8,7 @@ export class Fourier extends BaseSketch implements StateDependent {
   private lowest?: number;
   private noise?: number;
   private average?: number;
+  private noisedValsRef?: AppState["noisedMessage"];
 
   draw() {
     this.prepDraw();
@@ -53,6 +53,10 @@ export class Fourier extends BaseSketch implements StateDependent {
       vals.push((x / Math.sqrt(width)) * 2 - average);
     }
 
+    if (this.noisedValsRef?.current) {
+      this.noisedValsRef.current = vals;
+    }
+
     const tileWidth = (p.width - padding * 2) / vals.length;
     const height = p.height / 2 - padding;
 
@@ -68,9 +72,9 @@ export class Fourier extends BaseSketch implements StateDependent {
     p.endShape();
   }
 
-  update(state: AppState): void {
+  update(state: AppState, dispatch: AppContextType["dispatch"]): void {
     let now = Date.now();
-    super.update(state);
+    super.update(state, dispatch);
 
     if (!state.message) {
       return;
@@ -82,6 +86,7 @@ export class Fourier extends BaseSketch implements StateDependent {
     this.highest = highest;
     this.lowest = lowest;
     this.noise = state.noise;
+    this.noisedValsRef = state.noisedMessage;
 
     const vals = state.encodedMessage;
 

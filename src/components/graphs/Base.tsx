@@ -1,8 +1,8 @@
 import p5 from "p5";
-import { AppState } from "../state";
+import type { AppContextType, AppState } from "../../state";
 
 export interface StateDependent {
-  update: (state: AppState) => void;
+  update: (state: AppState, dispatch: AppContextType["dispatch"]) => void;
   destroy: () => void;
 }
 
@@ -68,7 +68,7 @@ export class BaseSketch implements StateDependent {
     this.drawAxes();
   }
 
-  update(state: AppState) {
+  update(state: AppState, dispatch: AppContextType["dispatch"]) {
     const values = state.encodedMessage;
     switch (state.encoding) {
       case "RZ":
