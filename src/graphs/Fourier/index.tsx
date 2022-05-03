@@ -100,7 +100,5 @@ export class Fourier extends BaseSketch implements StateDependent {
     });
 
     this.complexArray = data;
-
-    // console.log("MILLIS", Date.now() - now);
   }
 }
