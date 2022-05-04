@@ -71,13 +71,6 @@ const reducer: Reducer<AppState, Actions> = (state, action) => {
         };
       }
 
-      if (key === "receivedMessage") {
-        return {
-          ...state,
-          [key]: action.payload,
-        };
-      }
-
       return {
         ...state,
         [key]: action.payload,
