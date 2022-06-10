@@ -8,7 +8,8 @@ export class Fourier extends BaseSketch implements StateDependent {
   private lowest?: number;
   private noise?: number;
   private average?: number;
-  private noisedValsRef?: AppState["noisedMessage"];
+  private dispatch?: AppContextType["dispatch"];
+  private voltage: number = 0;
 
   draw() {
     this.prepDraw();
@@ -19,8 +20,17 @@ export class Fourier extends BaseSketch implements StateDependent {
     const lowest = this.lowest!;
     const noise = this.noise!;
     const average = this.average!;
+    const height = p.height / 2 - padding;
 
-    if (!this.complexArray) {
+    p.push();
+    p.noStroke();
+    p.fill("#FFF2");
+    p.rect(0, (-this.voltage / 2) * height, width, this.voltage * height);
+    p.pop();
+
+    if (!this.complexArray || this.complexArray.length === 0) {
+      // console.log("no array");
+
       return;
     }
 
@@ -38,6 +48,8 @@ export class Fourier extends BaseSketch implements StateDependent {
       (value) => value + (Math.random() - 0.5) * noise
     );
 
+    // console.log(this.complexArray);
+
     for (let i = 0; i < inputT.length; i++) {
       let t = inputT[i];
       let x = 0;
@@ -53,12 +65,11 @@ export class Fourier extends BaseSketch implements StateDependent {
       vals.push((x / Math.sqrt(width)) * 2 - average);
     }
 
-    if (this.noisedValsRef?.current) {
-      this.noisedValsRef.current = vals;
+    if (this.dispatch) {
+      this.dispatch({ type: "set", key: "noisedMessage", payload: vals });
     }
 
     const tileWidth = (p.width - padding * 2) / vals.length;
-    const height = p.height / 2 - padding;
 
     p.beginShape();
 
@@ -74,10 +85,12 @@ export class Fourier extends BaseSketch implements StateDependent {
 
   update(state: AppState, dispatch: AppContextType["dispatch"]): void {
     let now = Date.now();
+    this.dispatch = dispatch;
+    this.voltage = state.voltage;
     super.update(state, dispatch);
 
     if (!state.message) {
-      return;
+      throw new Error("No message");
     }
 
     const width = this.parentP5.width;
@@ -86,7 +99,6 @@ export class Fourier extends BaseSketch implements StateDependent {
     this.highest = highest;
     this.lowest = lowest;
     this.noise = state.noise;
-    this.noisedValsRef = state.noisedMessage;
 
     const vals = state.encodedMessage;
 
@@ -105,5 +117,10 @@ export class Fourier extends BaseSketch implements StateDependent {
     });
 
     this.complexArray = data;
+
+    // GOD PLEASE HELP ME
+    if (!state.noisedMessage) {
+      dispatch({ type: "set", key: "message", payload: state.message });
+    }
   }
 }

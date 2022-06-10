@@ -1,10 +1,4 @@
-import React, {
-  Dispatch,
-  Reducer,
-  useContext,
-  useReducer,
-  useRef,
-} from "react";
+import React, { Dispatch, Reducer, useContext, useReducer } from "react";
 import { getASCII } from "./utils";
 
 type Encoding = "NRZ" | "RZ" | "AMI" | "Manchester";
@@ -16,21 +10,30 @@ export type AppState = {
   lowest?: number;
   encoding: Encoding;
   encodedMessage: number[];
+  encodedMessageBits: number[];
   scrambling: Scrambling;
   noise: number;
-  noisedMessage?: React.MutableRefObject<number[]>;
-  receivedMessage?: number[];
-  decodedMessage?: number[];
+  noisedMessage?: number[];
+  receivedMessageBits?: number[];
+  decodedMessage?: string;
+  errorCountBits: number;
+  sendCountBits: number;
+  voltage: number;
 };
 
 const initialState: AppState = {
   message: "leon",
+  decodedMessage: "leon",
   highest: 128,
   lowest: 0,
   encoding: "NRZ",
-  encodedMessage: getEncodedMessage("leon", "NRZ", "Physical"),
+  encodedMessage: getEncodedMessage("leon", "NRZ", "Physical").encodedMessage,
+  encodedMessageBits: getEncodedMessage("leon", "NRZ", "Physical").bits,
   scrambling: "Physical",
   noise: 0,
+  errorCountBits: 0,
+  sendCountBits: 0,
+  voltage: 0.5,
 };
 
 type Actions<T extends keyof AppState = keyof AppState> = {
@@ -61,13 +64,39 @@ const reducer: Reducer<AppState, Actions> = (state, action) => {
           [key]: action.payload,
         };
 
+        const { encodedMessage, bits } = getEncodedMessage(
+          newVal.message,
+          newVal.encoding,
+          newVal.scrambling
+        );
         return {
           ...newVal,
-          encodedMessage: getEncodedMessage(
-            newVal.message,
-            newVal.encoding,
-            newVal.scrambling
-          ),
+          encodedMessage: encodedMessage,
+          encodedMessageBits: bits,
+        };
+      }
+
+      if (key === "receivedMessageBits") {
+        const decodedMessage = getDecodedMessage(
+          action.payload as number[],
+          state.encoding,
+          state.scrambling
+        );
+
+        // console.log(state.encodedMessageBits, bits);
+
+        return {
+          ...state,
+          [key]: action.payload,
+          decodedMessage,
+          errorCountBits:
+            state.errorCountBits +
+            state.encodedMessageBits.reduce(
+              (acc, curr, index) =>
+                acc + Number(curr !== action.payload[index]),
+              0
+            ),
+          sendCountBits: state.sendCountBits + state.encodedMessageBits.length,
         };
       }
 
@@ -84,15 +113,9 @@ const reducer: Reducer<AppState, Actions> = (state, action) => {
 
 export const AppStateProvider: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const noisedMessageRef = useRef<number[]>([]);
-  // const receivedMessageRef = useRef<number[]>([]);
 
   const stateValue = {
-    state: {
-      ...state,
-      noisedMessage: noisedMessageRef,
-      // receivedMessage: receivedMessageRef,
-    },
+    state,
     dispatch,
   };
 
@@ -103,14 +126,14 @@ function getEncodedMessage(
   message: string,
   encoding: Encoding,
   scrambling: Scrambling
-): number[] {
+) {
   const vals = getASCII(message, 2).split("").map(Number);
 
   let encodedMessage: number[] = [];
 
   switch (encoding) {
     case "NRZ":
-      encodedMessage = vals.map((num) => (num === 0 ? -1 : num));
+      encodedMessage = vals.map((num) => (num === 0 ? -1 : 1));
       break;
     case "RZ":
       encodedMessage = vals.flatMap((num) => [num === 0 ? -1 : 1, 0]);
@@ -125,16 +148,106 @@ function getEncodedMessage(
         encodedMessage.push(flag ? -1 : 1);
         flag = !flag;
       }
-      // encodedMessage = vals.flatMap((num) => [num === 0 ? -1 : 1, 0]);
       break;
     case "Manchester":
       encodedMessage = vals.flatMap((num) => (num === 0 ? [-1, 1] : [1, -1]));
       break;
 
     default:
-      encodedMessage = vals.map((num) => (num === 0 ? -1 : num));
+      encodedMessage = vals.map((num) => (num === 0 ? -1 : 1));
       break;
   }
 
-  return encodedMessage;
+  return { encodedMessage, bits: vals };
+}
+
+function chunk(arr: number[], size: number) {
+  const chunks: number[][] = [];
+  let i = 0;
+  while (i < arr.length) {
+    chunks.push(arr.slice(i, (i += size)));
+  }
+  return chunks;
+}
+
+export function getDecodedBits(
+  message: number[],
+  encoding: Encoding,
+  scrambling: Scrambling
+) {
+  // const vals = getASCII(message, 2).split("").map(Number);
+
+  let bits: number[] = [];
+
+  switch (encoding) {
+    case "NRZ": {
+      bits = message.map((level) => (level === -1 ? 0 : 1));
+      break;
+    }
+    // case "RZ":
+    //   encodedMessage = vals.flatMap((num) => [num === 0 ? -1 : 1, 0]);
+    //   break;
+    // case "AMI":
+    //   let flag = false;
+    //   for (const val of vals) {
+    //     if (val === 0) {
+    //       encodedMessage.push(0);
+    //       continue;
+    //     }
+    //     encodedMessage.push(flag ? -1 : 1);
+    //     flag = !flag;
+    //   }
+    //   break;
+    // case "Manchester":
+    //   encodedMessage = vals.flatMap((num) => (num === 0 ? [-1, 1] : [1, -1]));
+    //   break;
+
+    // default:
+    //   encodedMessage = vals.map((num) => (num === 0 ? -1 : num));
+    //   break;
+  }
+
+  return bits;
+}
+
+export function getDecodedMessage(
+  bits: number[],
+  encoding: Encoding,
+  scrambling: Scrambling
+) {
+  // const vals = getASCII(message, 2).split("").map(Number);
+
+  let decodedMessage: string = "";
+
+  switch (encoding) {
+    case "NRZ": {
+      decodedMessage = chunk(bits, 8)
+        .map((bytes) => String.fromCharCode(parseInt(bytes.join(""), 2)))
+        .join("");
+      break;
+    }
+    // case "RZ":
+    //   encodedMessage = vals.flatMap((num) => [num === 0 ? -1 : 1, 0]);
+    //   break;
+    // case "AMI":
+    //   let flag = false;
+    //   for (const val of vals) {
+    //     if (val === 0) {
+    //       encodedMessage.push(0);
+    //       continue;
+    //     }
+    //     encodedMessage.push(flag ? -1 : 1);
+    //     flag = !flag;
+    //   }
+    //   break;
+    // case "Manchester":
+    //   encodedMessage = vals.flatMap((num) => (num === 0 ? [-1, 1] : [1, -1]));
+    //   break;
+
+    // default:
+    //   encodedMessage = vals.map((num) => (num === 0 ? -1 : num));
+    //   break;
+  }
+
+  return decodedMessage;
 }

@@ -74,6 +74,28 @@ export const FormSection: React.FC = () => {
             </div>
           ))}
         </div>
+        <br />
+        <div>
+          {["Physical", "Super 4/5", "Scrambling"].map((scrambling) => (
+            <div key={scrambling}>
+              <input
+                type="radio"
+                value={scrambling}
+                name="scrambling"
+                id={scrambling}
+                checked={state.scrambling === scrambling}
+                onChange={(e) => {
+                  dispatch({
+                    type: "set",
+                    key: "scrambling",
+                    payload: getVal(e),
+                  });
+                }}
+              />
+              <label htmlFor={scrambling}>{scrambling}</label>
+            </div>
+          ))}
+        </div>
       </div>
       <div className="card">
         <h2>{t("receiver")}</h2>
@@ -101,6 +123,34 @@ export const FormSection: React.FC = () => {
             value={state.noise}
             onChange={(e) =>
               dispatch({ type: "set", key: "noise", payload: getVal(e) })
+            }
+          />
+        </div>
+        <br />
+        <div>
+          <label htmlFor="voltage-range">{t("voltage")} </label>
+          <input
+            type="range"
+            name="voltage-range"
+            min={0}
+            max={2.5}
+            step={0.1}
+            id="voltage-range"
+            value={state.voltage}
+            onChange={(e) =>
+              dispatch({ type: "set", key: "voltage", payload: getVal(e) })
+            }
+          />
+          <input
+            type="number"
+            name="voltage-number"
+            min={0}
+            max={2.5}
+            step={0.1}
+            id="voltage-number"
+            value={state.voltage}
+            onChange={(e) =>
+              dispatch({ type: "set", key: "voltage", payload: getVal(e) })
             }
           />
         </div>

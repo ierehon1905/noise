@@ -24,6 +24,15 @@ export const Chart: React.FC<{ title: string; chartType: ChartType }> = ({
   const [p5Instance, setP5Instance] = useState<BaseSketch>();
   const { state, dispatch } = useAppState();
 
+  // console.log(
+  //   "state",
+  //   state.message,
+  //   state.errorCount,
+  //   state.encodedMessage?.[0],
+  //   state.receivedMessage?.[0],
+  //   state.decodedMessage
+  // );
+
   useEffect(() => {
     if (!canvasWrapperRef.current) {
       return;

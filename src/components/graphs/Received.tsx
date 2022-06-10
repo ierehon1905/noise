@@ -1,10 +1,13 @@
-import { AppContextType, AppState } from "../../state";
+import {
+  AppContextType,
+  AppState,
+  getDecodedBits,
+  getDecodedMessage,
+} from "../../state";
 import { getASCII } from "../../utils";
 import { BaseSketch, StateDependent } from "./Base";
 
 export default class Received extends BaseSketch implements StateDependent {
-  private noisedValsRef?: AppState["noisedMessage"];
-  private receivedMessageRef?: AppState["receivedMessage"];
   private dispatch?: AppContextType["dispatch"];
 
   draw() {
@@ -13,7 +16,14 @@ export default class Received extends BaseSketch implements StateDependent {
 
     this.prepDraw();
 
-    const vals = this.noisedValsRef?.current || [];
+    const vals = this.vals;
+
+    if (vals.length === 0) {
+      return;
+    }
+
+    // console.log(vals);
+
     const tileWidth = (p.width - padding * 2) / vals.length;
     const height = p.height / 2 - padding;
 
@@ -38,7 +48,7 @@ export default class Received extends BaseSketch implements StateDependent {
 
     const receivedMessageVals = [];
 
-    p.beginShape();
+    // p.beginShape();
 
     for (let index = 0; index < counts; index++) {
       const measurementIndex = index * measurementDistance + measurementOffset;
@@ -46,33 +56,49 @@ export default class Received extends BaseSketch implements StateDependent {
 
       const x = measurementIndex * tileWidth;
 
-      let y = Math.round(measurementValue);
+      let y = measurementValue > 0 ? 1 : -1;
       receivedMessageVals.push(y);
       y *= height;
       // p.circle(x, measurementValue * height, 5);
+      // p.vertex(x - measurementOffset, y);
+      // p.vertex(x + measurementOffset, y);
+    }
+
+    // p.endShape();
+
+    const bits = getDecodedBits(receivedMessageVals, "NRZ", "Physical");
+
+    p.beginShape();
+
+    for (let index = 0; index < bits.length; index++) {
+      const measurementIndex = index * measurementDistance + measurementOffset;
+
+      const x = measurementIndex * tileWidth;
+
+      let y = bits[index];
+      receivedMessageVals.push(y);
+      y *= height;
+      // p.circle(x, y * height, 5);
       p.vertex(x - measurementOffset, y);
       p.vertex(x + measurementOffset, y);
     }
 
     p.endShape();
 
-    // if (this.receivedMessageRef?.current) {
-    //   this.receivedMessageRef.current = receivedMessageVals;
-    // }
-
     if (this.dispatch) {
       this.dispatch({
         type: "set",
-        key: "receivedMessage",
-        payload: receivedMessageVals,
+        key: "receivedMessageBits",
+        payload: bits,
       });
     }
   }
 
   update(state: AppState, dispatch: AppContextType["dispatch"]): void {
     super.update(state, dispatch);
-    this.noisedValsRef = state.noisedMessage;
-    this.receivedMessageRef = state.receivedMessage;
+
+    this.vals = state.noisedMessage || [];
+
     this.dispatch = dispatch;
   }
 }

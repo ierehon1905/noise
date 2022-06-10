@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "../langs";
-import { useAppState } from "../state";
+import { getDecodedMessage, useAppState } from "../state";
 import { getASCII } from "../utils";
 
 export const StatsSection: React.FC = () => {
@@ -18,10 +18,8 @@ export const StatsSection: React.FC = () => {
     };
   }, []);
 
-  const encoded = useMemo(
-    () => getASCII(state.message, 16, false),
-    [state.message]
-  );
+  const encodedCode = getASCII(state.message, 16, false);
+  const decodedCode = getASCII(state.decodedMessage || "", 16, false);
 
   return (
     <div className="card graph state-section">
@@ -35,18 +33,28 @@ export const StatsSection: React.FC = () => {
             {t("length")}: {state.message.length}
           </div>
           <div>
-            {t("encoded")}: {encoded || "ー"}
+            {t("encoded")}: {encodedCode || "ー"}
           </div>
           <div>{t("bitrate")}: 10 Mb/s</div>
         </div>
         <div className="text-rows" key={counter}>
           <div>
-            {t("recovered-message")}: {state.receivedMessage?.join("")}
+            {t("recovered-message")}: {state.decodedMessage}
           </div>
-          <div>{t("encoded")}: todo-message</div>
-          <div>{t("bits-count")}: todo-message</div>
-          <div>{t("error-count")}: todo-message</div>
-          <div>{t("error-ratio")}: 10 Mb/s</div>
+          <div>
+            {t("encoded")}: {decodedCode}
+          </div>
+          <div>
+            {t("bits-count")}: {state.sendCountBits}
+          </div>
+          <div>
+            {t("error-count")}: {state.errorCountBits}
+          </div>
+          <div>
+            {t("error-ratio")}:{" "}
+            {Math.round((state.errorCountBits / state.sendCountBits) * 1000) /
+              10}
+          </div>
         </div>
         <div className="text-rows">
           <div>Show</div>
