@@ -100,7 +100,8 @@ export const FormSection: React.FC = () => {
       <div className="card">
         <h2>{t("receiver")}</h2>
         <div>
-          <label htmlFor="noise-range">{t("noise")} </label>
+          <label htmlFor="noise-range">{t("noise")}</label>
+          <br />
           <input
             type="range"
             name="noise-range"
@@ -128,7 +129,8 @@ export const FormSection: React.FC = () => {
         </div>
         <br />
         <div>
-          <label htmlFor="voltage-range">{t("voltage")} </label>
+          <label htmlFor="voltage-range">{t("voltage")}s</label>
+          <br />
           <input
             type="range"
             name="voltage-range"
@@ -151,6 +153,35 @@ export const FormSection: React.FC = () => {
             value={state.voltage}
             onChange={(e) =>
               dispatch({ type: "set", key: "voltage", payload: getVal(e) })
+            }
+          />
+        </div>
+        <br />
+        <div>
+          <label htmlFor="desync-range">{t("desync")}</label>
+          <br />
+          <input
+            type="range"
+            name="desync-range"
+            min={0}
+            max={2.5}
+            step={0.1}
+            id="desync-range"
+            value={state.desync}
+            onChange={(e) =>
+              dispatch({ type: "set", key: "desync", payload: getVal(e) })
+            }
+          />
+          <input
+            type="number"
+            name="desync-number"
+            min={0}
+            max={2.5}
+            step={0.1}
+            id="desync-number"
+            value={state.desync}
+            onChange={(e) =>
+              dispatch({ type: "set", key: "desync", payload: getVal(e) })
             }
           />
         </div>

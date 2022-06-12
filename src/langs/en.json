@@ -19,5 +19,6 @@
   "recovered-message": "Recovered message",
   "bits-count": "Bits count",
   "error-count": "Error count",
-  "error-ratio": "Error %"
+  "error-ratio": "Error %",
+  "desync": "Desync"
 }

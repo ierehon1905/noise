@@ -57,21 +57,21 @@ export const StatsSection: React.FC = () => {
           </div>
         </div>
         <div className="text-rows">
-          <div>Show</div>
+          <div>Показывать</div>
           <div>
-            <input type="checkbox" id="show-fourier-series" />
+            <input type="checkbox" id="show-fourier-series" checked />
             <label htmlFor="show-fourier-series">{t("fourier-series")}</label>
           </div>
           <div>
-            <input type="checkbox" id="show-noise" />
+            <input type="checkbox" id="show-noise" checked />
             <label htmlFor="show-noise">{t("noise")}</label>
           </div>
           <div>
-            <input type="checkbox" id="show-samplers" />
+            <input type="checkbox" id="show-samplers" checked />
             <label htmlFor="show-samplers">{t("samplers")}</label>
           </div>
           <div>
-            <input type="checkbox" id="show-voltage" />
+            <input type="checkbox" id="show-voltage" checked />
             <label htmlFor="show-voltage">{t("voltage")}</label>
           </div>
         </div>

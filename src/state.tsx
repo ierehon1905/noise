@@ -19,6 +19,7 @@ export type AppState = {
   errorCountBits: number;
   sendCountBits: number;
   voltage: number;
+  desync: number;
 };
 
 const initialState: AppState = {
@@ -34,6 +35,7 @@ const initialState: AppState = {
   errorCountBits: 0,
   sendCountBits: 0,
   voltage: 0.5,
+  desync: 0,
 };
 
 type Actions<T extends keyof AppState = keyof AppState> = {
@@ -54,6 +56,7 @@ export const useAppState = () => {
   return useContext(AppStateContext);
 };
 
+// @ts-ignore
 const reducer: Reducer<AppState, Actions> = (state, action) => {
   switch (action.type) {
     case "set": {
@@ -93,6 +96,7 @@ const reducer: Reducer<AppState, Actions> = (state, action) => {
             state.errorCountBits +
             state.encodedMessageBits.reduce(
               (acc, curr, index) =>
+                // @ts-ignore
                 acc + Number(curr !== action.payload[index]),
               0
             ),
