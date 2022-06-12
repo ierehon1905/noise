@@ -20,12 +20,13 @@ export type AppState = {
   sendCountBits: number;
   voltage: number;
   desync: number;
+  needUpdateNoisedMessage: boolean;
 };
 
 const initialState: AppState = {
   message: "le",
   decodedMessage: "le",
-  highest: 128,
+  highest: 64,
   lowest: 0,
   encoding: "NRZ",
   encodedMessage: getEncodedMessage("le", "NRZ", "Physical").encodedMessage,
@@ -36,6 +37,7 @@ const initialState: AppState = {
   sendCountBits: 0,
   voltage: 0.5,
   desync: 0,
+  needUpdateNoisedMessage: false,
 };
 
 type Actions<T extends keyof AppState = keyof AppState> = {
@@ -72,14 +74,25 @@ const reducer: Reducer<AppState, Actions> = (state, action) => {
           newVal.encoding,
           newVal.scrambling
         );
+
         return {
           ...newVal,
           encodedMessage: encodedMessage,
           encodedMessageBits: bits,
+          sendCountBits: 0,
+          errorCountBits: 0,
+          needUpdateNoisedMessage: true,
         };
       }
 
       if (key === "receivedMessageBits") {
+        if (state.needUpdateNoisedMessage) {
+          return {
+            ...state,
+            [key]: action.payload,
+            needUpdateNoisedMessage: false,
+          };
+        }
         const decodedMessage = getDecodedMessage(
           action.payload as number[],
           state.encoding,

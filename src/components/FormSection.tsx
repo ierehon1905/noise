@@ -106,7 +106,7 @@ export const FormSection: React.FC = () => {
             type="range"
             name="noise-range"
             min={0}
-            max={2}
+            max={5}
             step={0.1}
             id="noise-range"
             value={state.noise}
@@ -118,7 +118,7 @@ export const FormSection: React.FC = () => {
             type="number"
             name="noise-number"
             min={0}
-            max={2}
+            max={5}
             step={0.1}
             id="noise-number"
             value={state.noise}
