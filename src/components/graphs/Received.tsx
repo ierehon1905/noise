@@ -54,7 +54,7 @@ export default class Received extends BaseSketch implements StateDependent {
       const measurementIndex = index * measurementDistance + measurementOffset;
       const measurementValue = vals[Math.round(measurementIndex)];
 
-      const x = measurementIndex * tileWidth;
+      // const x = measurementIndex * tileWidth;
 
       let y = measurementValue > 0 ? 1 : -1;
       receivedMessageVals.push(y);
@@ -71,17 +71,20 @@ export default class Received extends BaseSketch implements StateDependent {
     p.beginShape();
 
     for (let index = 0; index < bits.length; index++) {
-      const measurementIndex = index * measurementDistance + measurementOffset;
+      const x = index * measurementDistance + measurementOffset;
 
-      const x = measurementIndex * tileWidth;
-
+      // console.log({ index }, x, x + measurementOffset * 2);
       let y = bits[index];
       receivedMessageVals.push(y);
       y *= height;
       // p.circle(x, y * height, 5);
-      p.vertex(x - measurementOffset, y);
-      p.vertex(x + measurementOffset, y);
+      p.vertex((x - measurementOffset) * tileWidth, y);
+      p.vertex((x + measurementOffset) * tileWidth, y);
     }
+
+    // if (p.frameCount > 10) {
+    //   p.noLoop();
+    // }
 
     p.endShape();
 

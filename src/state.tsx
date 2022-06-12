@@ -23,13 +23,13 @@ export type AppState = {
 };
 
 const initialState: AppState = {
-  message: "leon",
-  decodedMessage: "leon",
+  message: "le",
+  decodedMessage: "le",
   highest: 128,
   lowest: 0,
   encoding: "NRZ",
-  encodedMessage: getEncodedMessage("leon", "NRZ", "Physical").encodedMessage,
-  encodedMessageBits: getEncodedMessage("leon", "NRZ", "Physical").bits,
+  encodedMessage: getEncodedMessage("le", "NRZ", "Physical").encodedMessage,
+  encodedMessageBits: getEncodedMessage("le", "NRZ", "Physical").bits,
   scrambling: "Physical",
   noise: 0,
   errorCountBits: 0,
